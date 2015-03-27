@@ -37,3 +37,6 @@
 [submodule "database"]
 	path = database
 	url = https://github.com/moneymanagerex/database
+[submodule "3rd/wxWebViewChromium"]
+	path = 3rd/wxWebViewChromium
+	url = https://github.com/moneymanagerex/wxWebViewChromium.git
