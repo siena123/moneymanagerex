@@ -133,7 +133,7 @@ void mmOptionMiscSettings::Create()
 
     wxCheckBox* backupUpdateCheckBox = new wxCheckBox(this, ID_DIALOG_OPTIONS_CHK_BACKUP_UPDATE
         , _("Backup database on exit."), wxDefaultPosition, wxDefaultSize, wxCHK_2STATE);
-    backupUpdateCheckBox->SetValue(GetIniDatabaseCheckboxValue("BACKUPDB_UPDATE", false));
+    backupUpdateCheckBox->SetValue(GetIniDatabaseCheckboxValue("BACKUPDB_UPDATE", true));
     backupUpdateCheckBox->SetToolTip(_("When MMEX shuts down and changes made to database,\ncreates or updates the backup database: dbFile_update_YYYY-MM-DD.ext."));
     backupStaticBoxSizer->Add(backupUpdateCheckBox, g_flags);
 
@@ -212,6 +212,6 @@ void mmOptionMiscSettings::SaveSettings()
     Model_Setting::instance().Set("MAX_BACKUP_FILES", m_max_files->GetValue());
 
     wxTextCtrl* st = (wxTextCtrl*)FindWindow(ID_DIALOG_OPTIONS_TEXTCTRL_DELIMITER4);
-    wxString delim = st->GetValue();
+    const wxString& delim = st->GetValue();
     if (!delim.IsEmpty()) Model_Infotable::instance().Set("DELIMITER", delim);
 }

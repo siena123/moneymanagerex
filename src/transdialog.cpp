@@ -60,6 +60,7 @@ mmTransDialog::mmTransDialog(wxWindow* parent
     , int account_id
     , int transaction_id
     , bool duplicate
+    , int type
 ) : m_currency(nullptr)
     , m_to_currency(nullptr)
     , categUpdated_(false)
@@ -73,21 +74,21 @@ mmTransDialog::mmTransDialog(wxWindow* parent
     , skip_notes_init_(false)
     , skip_category_init_(false)
     , skip_tooltips_init_(false)
-    , category_changed_(false)
     , skip_amount_init_(false)
 {
     Model_Checking::Data *transaction = Model_Checking::instance().get(transaction_id);
-    m_new_trx = !transaction || m_duplicate ? true : false;
-    if (!m_new_trx || m_duplicate)
+    m_new_trx = (transaction || m_duplicate) ? false : true;
+    m_transfer = m_new_trx ? type == Model_Checking::TRANSFER : Model_Checking::is_transfer(transaction);
+    if (m_new_trx)
+    {
+        Model_Checking::getEmptyTransaction(m_trx_data, account_id);
+        m_trx_data.TRANSCODE = Model_Checking::all_type()[type];
+    }
+    else
     {
         Model_Checking::getTransactionData(m_trx_data, transaction);
         for (const auto& item : Model_Checking::splittransaction(transaction))
             local_splits.push_back({ item.CATEGID, item.SUBCATEGID, item.SPLITTRANSAMOUNT });
-        m_transfer = Model_Checking::type(transaction->TRANSCODE) == Model_Checking::TRANSFER;
-    }
-    else
-    {
-        Model_Checking::getEmptyTransaction(m_trx_data, account_id);
     }
 
     Model_Account::Data* acc = Model_Account::instance().get(m_trx_data.ACCOUNTID);
@@ -99,7 +100,8 @@ mmTransDialog::mmTransDialog(wxWindow* parent
     if (m_transfer) 
     {
         Model_Account::Data* to_acc = Model_Account::instance().get(m_trx_data.TOACCOUNTID);
-        m_to_currency = Model_Account::currency(to_acc);
+        if (to_acc) 
+            m_to_currency = Model_Account::currency(to_acc);
         if (m_to_currency) 
             m_advanced = !m_new_trx && (m_currency->CURRENCYID != m_to_currency->CURRENCYID || m_trx_data.TRANSAMOUNT != m_trx_data.TOTRANSAMOUNT);
     }
@@ -569,23 +571,11 @@ bool mmTransDialog::validateData()
         m_trx_data.PAYEEID = -1;
     }
 
-    if (cSplit_->IsChecked())
+    if ((cSplit_->IsChecked() && local_splits.empty())
+        || (!cSplit_->IsChecked() && Model_Category::full_name(m_trx_data.CATEGID, m_trx_data.SUBCATEGID).empty()))
     {
-        if (local_splits.empty())
-        {
-            mmErrorDialogs::InvalidCategory((wxWindow*)bCategory_);
-            return false;
-        }
-    }
-    else //non split
-    {
-        Model_Category::Data *category = Model_Category::instance().get(m_trx_data.CATEGID);
-        Model_Subcategory::Data *subcategory = Model_Subcategory::instance().get(m_trx_data.SUBCATEGID);
-        if (!category || !(subcategory || m_trx_data.SUBCATEGID < 0))
-        {
-            mmErrorDialogs::InvalidCategory((wxWindow*)bCategory_);
-            return false;
-        }
+        mmErrorDialogs::InvalidCategory((wxWindow*)bCategory_, false);
+        return false;
     }
 
     return true;
@@ -683,18 +673,23 @@ void mmTransDialog::activateSplitTransactionsDlg()
 {
     bool bDeposit = Model_Checking::is_deposit(m_trx_data.TRANSCODE);
 
-    if (m_trx_data.CATEGID > -1 && local_splits.empty())
+    if (!textAmount_->GetDouble(m_trx_data.TRANSAMOUNT, m_currency))
+        m_trx_data.TRANSAMOUNT = 0;
+
+    if (!Model_Category::full_name(m_trx_data.CATEGID, m_trx_data.SUBCATEGID).empty() && local_splits.empty())
     {
-        if (!textAmount_->GetDouble(m_trx_data.TRANSAMOUNT, m_currency))
-            m_trx_data.TRANSAMOUNT = 0;
         Split s;
-        s.SPLITTRANSAMOUNT = bDeposit ? m_trx_data.TRANSAMOUNT : m_trx_data.TRANSAMOUNT;
+        s.SPLITTRANSAMOUNT = m_trx_data.TRANSAMOUNT;
         s.CATEGID = m_trx_data.CATEGID;
         s.SUBCATEGID = m_trx_data.SUBCATEGID;
         local_splits.push_back(s);
     }
 
-    SplitTransactionDialog dlg(this, local_splits, transaction_type_->GetSelection(), m_trx_data.ACCOUNTID);
+    SplitTransactionDialog dlg(this, local_splits
+        , bDeposit ? Model_Checking::DEPOSIT : Model_Checking::WITHDRAWAL
+        , m_trx_data.ACCOUNTID
+        , m_trx_data.TRANSAMOUNT);
+
     if (dlg.ShowModal() == wxID_OK)
     {
         local_splits = dlg.getResult();
@@ -702,7 +697,7 @@ void mmTransDialog::activateSplitTransactionsDlg()
     if (!local_splits.empty()) 
     {
         m_trx_data.TRANSAMOUNT = Model_Splittransaction::get_total(local_splits);
-        category_changed_ = dlg.isItemsChanged();
+        skip_category_init_ = !dlg.isItemsChanged();
     }
 }
 
@@ -762,19 +757,22 @@ void mmTransDialog::OnAccountOrPayeeUpdated(wxCommandEvent& event)
     // Filtering the combobox as the user types because on Mac autocomplete function doesn't work
     // PLEASE DO NOT REMOVE!!!
     #if defined (__WXMAC__)
-        wxString payeeName = event.GetString();
-        if (cbPayee_->GetSelection() == -1) // make sure nothing is selected (ex. user presses down arrow)
+        if (!m_transfer)
         {
-            cbPayee_->SetEvtHandlerEnabled(false); // things will crash if events are handled during Clear
-            cbPayee_->Clear();
-            Model_Payee::Data_Set filtd = Model_Payee::instance().FilterPayees(payeeName);
-            std::sort(filtd.rbegin(), filtd.rend(), SorterByPAYEENAME());
-            for (int nn=0; nn<filtd.size(); nn++) {
-                cbPayee_->Insert(filtd[nn].PAYEENAME, 0);
+            wxString payeeName = event.GetString();
+            if (cbPayee_->GetSelection() == -1) // make sure nothing is selected (ex. user presses down arrow)
+            {
+                cbPayee_->SetEvtHandlerEnabled(false); // things will crash if events are handled during Clear
+                cbPayee_->Clear();
+                Model_Payee::Data_Set filtd = Model_Payee::instance().FilterPayees(payeeName);
+                std::sort(filtd.rbegin(), filtd.rend(), SorterByPAYEENAME());
+                for (int nn=0; nn<filtd.size(); nn++) {
+                    cbPayee_->Insert(filtd[nn].PAYEENAME, 0);
+                }
+                cbPayee_->ChangeValue(payeeName);
+                cbPayee_->SetInsertionPointEnd();
+                cbPayee_->SetEvtHandlerEnabled(true);
             }
-            cbPayee_->ChangeValue(payeeName);
-            cbPayee_->SetInsertionPointEnd();
-            cbPayee_->SetEvtHandlerEnabled(true);
         }
     #endif
     wxChildFocusEvent evt;

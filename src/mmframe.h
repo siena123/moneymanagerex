@@ -29,6 +29,7 @@ Copyright (C) 2014 Guan Lisheng (guanlisheng@gmail.com)
 #include <vector>
 #include "mmOption.h"
 #include "constants.h"
+#include "util.h"
 
 //----------------------------------------------------------------------------
 class wxSQLite3Database;
@@ -72,6 +73,7 @@ public:
     void menuPrintingEnable(bool enable);
     void OnToggleFullScreen(wxCommandEvent& WXUNUSED(event));
     void OnClose(wxCloseEvent&);
+    std::vector<WebsiteNews> g_WebsiteNewsList;
 
 private:
     std::vector<const ModelBase*> m_all_models;
@@ -225,9 +227,7 @@ private:
     void OnPopupEditAccount(wxCommandEvent& event);
     void OnPopupReallocateAccount(wxCommandEvent& event);
 
-    void OnViewAllAccounts(wxCommandEvent& event);
-    void OnViewFavoriteAccounts(wxCommandEvent& event);
-    void OnViewOpenAccounts(wxCommandEvent& event);
+    void OnViewAccountsTemporaryChange(wxCommandEvent& event);
 
     void OnTreeItemExpanded(wxTreeEvent& event);
     void OnTreeItemCollapsed(wxTreeEvent& event);
@@ -324,6 +324,7 @@ private:
         MENU_TREEPOPUP_ACCOUNT_VIEWALL,
         MENU_TREEPOPUP_ACCOUNT_VIEWFAVORITE,
         MENU_TREEPOPUP_ACCOUNT_VIEWOPEN,
+        MENU_TREEPOPUP_ACCOUNT_VIEWCLOSED,
         AUTO_REPEAT_TRANSACTIONS_TIMER_ID,
     };
 };

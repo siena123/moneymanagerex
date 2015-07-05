@@ -40,12 +40,14 @@ public:
     long m_selected_row;
     int m_selected_col;
     bool m_asc;
-    std::vector<std::tuple<wxString, int>> m_columns;
+    std::vector<std::tuple<wxString, int, int>> m_columns;
     wxString m_col_width;
     int m_default_sort_column;
 
     virtual wxListItemAttr* OnGetItemAttr(long row) const;
     wxString BuildPage(const wxString &title) const;
+    int GetColumnWidthSetting(int column_number, int default_size = wxLIST_AUTOSIZE);
+    void SetColumnWidthSetting(int column_number, int column_width);
 
 protected:
     void OnItemResize(wxListEvent& event);

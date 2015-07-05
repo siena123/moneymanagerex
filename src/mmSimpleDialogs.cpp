@@ -59,11 +59,11 @@ mmDialogComboBoxAutocomplete::mmDialogComboBoxAutocomplete()
 }
 mmDialogComboBoxAutocomplete::mmDialogComboBoxAutocomplete(wxWindow *parent, const wxString& message, const wxString& caption,
     const wxString& defaultText, const wxArrayString& choices)
+    : Default(defaultText),
+    Choices(choices),
+    Message(message)
 {
     long style = wxCAPTION | wxRESIZE_BORDER | wxCLOSE_BOX;
-    Default = defaultText;
-    Choices = choices;
-    Message = message;
     Create(parent, wxID_STATIC, caption, wxDefaultPosition, wxSize(300, 100), style);
 }
 
@@ -201,13 +201,14 @@ void mmErrorDialogs::MessageInvalid(wxWindow *parent, const wxString &message)
     MessageError(parent, msg, _("Invalid Entry"));
 }
 
-void mmErrorDialogs::InvalidCategory(wxWindow *button)
+void mmErrorDialogs::InvalidCategory(wxWindow *win, bool simple)
 {
-    wxRichToolTip tip(_("Invalid Category"),
-        _("Please use this button for category selection\nor use the 'Split' checkbox for multiple categories.")
-        + "\n");
+    const wxString& msg = simple
+        ? _("Please use this button for category selection.")
+        : _("Please use this button for category selection\nor use the 'Split' checkbox for multiple categories.");
+    wxRichToolTip tip(_("Invalid Category"), msg + "\n");
     tip.SetIcon(wxICON_WARNING);
-    tip.ShowFor(button);
+    tip.ShowFor(win);
 }
 
 void mmErrorDialogs::InvalidFile(wxWindow *object, bool open)
@@ -250,12 +251,30 @@ void mmErrorDialogs::InvalidPayee(wxWindow *object)
     tip.ShowFor(object);
 }
 
-void mmErrorDialogs::InvalidName(wxTextCtrl *textBox)
+void mmErrorDialogs::InvalidName(wxTextCtrl *textBox, bool alreadyexist)
 {
     const wxString& errorHeader = _("Invalid Name");
-    const wxString& errorMessage = (_("Please type in a non empty name.")
-        + "\n");
+    wxString errorMessage;
+    if (alreadyexist)
+        errorMessage = _("Already exist!");
+    else
+        errorMessage = _("Please type in a non empty name.");
+
     wxRichToolTip tip(errorHeader, errorMessage);
     tip.SetIcon(wxICON_WARNING);
-    tip.ShowFor((wxWindow*)textBox);
+    tip.ShowFor(textBox);
+}
+
+void mmErrorDialogs::InvalidSymbol(wxTextCtrl *textBox, bool alreadyexist)
+{
+    const wxString& errorHeader = _("Invalid Name");
+    wxString errorMessage;
+    if (alreadyexist)
+        errorMessage = _("Already exist!");
+    else
+        errorMessage = _("Please type in a non empty symbol.");
+
+    wxRichToolTip tip(errorHeader, errorMessage);
+    tip.SetIcon(wxICON_WARNING);
+    tip.ShowFor(textBox);
 }

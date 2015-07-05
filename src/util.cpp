@@ -17,11 +17,13 @@
  ********************************************************/
 
 #include "util.h"
+#include "constants.h"
 #include "validators.h"
 #include "model/Model_Currency.h"
 #include "model/Model_Infotable.h"
 #include "model/Model_Setting.h"
 #include <wx/sstream.h>
+#include <wx/xml/xml.h>
 //----------------------------------------------------------------------------
 
 int CaseInsensitiveCmp(const wxString &s1, const wxString &s2)
@@ -87,7 +89,7 @@ int site_content(const wxString& sSite, wxString& sOutput)
     if (!proxyName.empty())
     {
         int proxyPort = Model_Setting::instance().GetIntSetting("PROXYPORT", 0);
-        wxString proxySettings = wxString::Format("%s:%d", proxyName, proxyPort);
+        const wxString& proxySettings = wxString::Format("%s:%d", proxyName, proxyPort);
         wxURL::SetDefaultProxy(proxySettings);
     }
     else
@@ -145,6 +147,67 @@ bool download_file(const wxString& site, const wxString& path)
     return false;
 }
 
+//Get unread news or all news for last year
+const bool getNewsRSS(std::vector<WebsiteNews>& WebsiteNewsList)
+{
+    wxString RssContent;
+    if (site_content(mmex::weblink::NewsRSS, RssContent) != wxURL_NOERR)
+        return false;
+
+    wxStringInputStream RssContentStream(RssContent);
+    wxXmlDocument RssDocument;
+    if (!RssDocument.Load(RssContentStream))
+        return false;
+
+    if (RssDocument.GetRoot()->GetName() != "rss")
+        return false;
+
+    const wxString news_last_read_date_str = Model_Setting::instance().GetStringSetting(INIDB_NEWS_LAST_READ_DATE, "");
+    wxDate news_last_read_date;
+    if (!news_last_read_date.ParseFormat(news_last_read_date_str))
+        news_last_read_date = wxDateTime::Today().Subtract(wxDateSpan::Year());
+
+    wxXmlNode* RssRoot = RssDocument.GetRoot()->GetChildren()->GetChildren();
+    while (RssRoot)
+    {
+        if (RssRoot->GetName() == "item")
+        {
+            WebsiteNews website_news;
+            wxXmlNode* News = RssRoot->GetChildren();
+            while (News)
+            {
+                wxString ElementName = News->GetName();
+
+                if (ElementName == "title")
+                    website_news.Title = News->GetChildren()->GetContent();
+                else if (ElementName == "link")
+                    website_news.Link = News->GetChildren()->GetContent();
+                else if (ElementName == "description")
+                    website_news.Description = News->GetChildren()->GetContent();
+                else if (ElementName == "pubDate")
+                {
+                    wxDateTime Date;
+                    const wxString DateString = News->GetChildren()->GetContent();
+                    if (!DateString.IsEmpty())
+                        Date.ParseDate(DateString);
+                    if (!Date.IsValid())
+                        Date = wxDateTime::Today().Subtract(wxDateSpan::Year()); //Seems invalid date, mark it as 1 year old
+                    website_news.Date = Date;
+                }
+                News = News->GetNext();
+            }
+            if (news_last_read_date.IsEarlierThan(website_news.Date))
+                WebsiteNewsList.push_back(website_news);
+        }
+        RssRoot = RssRoot->GetNext();
+    }
+
+    if (WebsiteNewsList.size() == 0)
+        return false;
+
+    return true;
+}
+
 //* Date Functions----------------------------------------------------------*//
 const wxString mmGetNiceDateSimpleString(const wxDateTime &dt)
 {
@@ -192,7 +255,7 @@ const wxDateTime mmGetStorageStringAsDate(const wxString& str)
     wxDateTime dt = wxDateTime::Today();
     if (!str.IsEmpty()) dt.ParseDate(str);
     if (!dt.IsValid()) dt = wxDateTime::Today();
-    if (dt.GetYear()<100) dt.Add(wxDateSpan::Years(2000));
+    if (dt.GetYear() < 100) dt.Add(wxDateSpan::Years(2000));
     return dt;
 }
 
@@ -202,15 +265,13 @@ const wxDateTime getUserDefinedFinancialYear(bool prevDayRequired)
     mmOptions::instance().financialYearStartMonthString_.ToLong(&monthNum);
 
     if (monthNum > 0) //Test required for compatability with previous version
-        monthNum --;
+        monthNum--;
 
-    wxDateTime today = wxDateTime::Today();
+    const wxDateTime today = wxDateTime::Today();
     int year = today.GetYear();
-    if (today.GetMonth() < monthNum) year -- ;
+    if (today.GetMonth() < monthNum) year--;
 
-    long dayNum;
-    wxString dayNumStr = mmOptions::instance().financialYearStartDayString_;
-    dayNumStr.ToLong(&dayNum);
+    int dayNum = wxAtoi(mmOptions::instance().financialYearStartDayString_);
     if ((dayNum < 1) || (dayNum > 31 )) {
         dayNum = 1;
     } else if (((monthNum == wxDateTime::Feb) && (dayNum > 28)) ||
@@ -349,14 +410,14 @@ END_EVENT_TABLE()
 mmCalcValidator::mmCalcValidator() : wxTextValidator(wxFILTER_INCLUDE_CHAR_LIST)
 {
     wxArrayString list;
-    wxString valid_chars(" 1234567890.,(/+-*)");
-    size_t len = valid_chars.Length();
-    for (size_t i=0; i<len; i++) {
-        list.Add(wxString(valid_chars.GetChar(i)));
+    for (const auto& c : " 1234567890.,(/+-*)")
+    {
+        list.Add(c);
     }
     SetIncludes(list);
     const Model_Currency::Data *base_currency = Model_Currency::instance().GetBaseCurrency();
-    decChar = base_currency->DECIMAL_POINT[0];
+    if (base_currency)
+        m_decChar = base_currency->DECIMAL_POINT[0];
 }
 
 void mmCalcValidator::OnChar(wxKeyEvent& event)
@@ -376,8 +437,8 @@ void mmCalcValidator::OnChar(wxKeyEvent& event)
         return;
     }
 
-    wxString str((wxUniChar)keyCode, 1);
-    if (!wxIsdigit(str[0]) && str != '+' && str != '-' && str != '.' && str != ',')
+    const wxString str((wxUniChar)keyCode, 1);
+    if (!(wxIsdigit(str[0]) || wxString("+-.,*/ ()").Contains(str)))
     {
         if ( !wxValidator::IsSilent() )
             wxBell();
@@ -395,7 +456,7 @@ void mmCalcValidator::OnChar(wxKeyEvent& event)
     if (str == '.' || str == ',')
     {
         const wxString value = ((wxTextCtrl*)m_validatorWindow)->GetValue();
-        size_t ind = value.rfind(decChar);
+        size_t ind = value.rfind(m_decChar);
         if (ind < value.Length())
         {
             // check if after last decimal point there is an operation char (+-/*)
@@ -403,12 +464,12 @@ void mmCalcValidator::OnChar(wxKeyEvent& event)
                 value.find('*', ind+1) >= value.Length() && value.find('/', ind+1) >= value.Length())
                 return;
         }
-        if (str != decChar)
+        if (str != m_decChar)
         {
 #ifdef _MSC_VER
-            wxChar vk = decChar == '.' ? 0x6e : 0xbc;
-            keybd_event(vk,0xb3,0 , 0);
-            keybd_event(vk,0xb3, KEYEVENTF_KEYUP,0);
+            const wxChar vk = m_decChar == '.' ? 0x6e : 0xbc;
+            keybd_event(vk, 0xb3, 0, 0);
+            keybd_event(vk, 0xb3, KEYEVENTF_KEYUP, 0);
             return;
 #endif
         }

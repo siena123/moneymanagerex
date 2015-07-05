@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #pragma once
 
 #include "mmOptionBaseSettings.h"
+#include <wx/spinctrl.h>
 
 class mmOptionViewSettings : public mmOptionSettingsBase
 {
@@ -41,8 +42,6 @@ public:
 
 private:
     void Create();
-
-    wxArrayString viewAccountStrings(bool translated, const wxString& input_string, int& row_id);
     void OnNavTreeColorChanged(wxCommandEvent& event);
 
 private:
@@ -57,15 +56,13 @@ private:
 
     wxChoice* m_choice_visible;
     wxChoice* m_choice_trans_visible;
-    wxChoice* m_choice_font_size;
+    wxSpinCtrl* m_scale_factor;
 
     wxCheckBox* m_budget_financial_years;
     wxCheckBox* m_budget_include_transfers;
     wxCheckBox* m_budget_setup_without_summary;
     wxCheckBox* m_budget_summary_without_category;
     wxCheckBox* m_ignore_future_transactions;
-
-    wxCheckBox* m_display_internet_news;
 
     enum
     {

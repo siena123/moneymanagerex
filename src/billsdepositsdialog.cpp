@@ -171,15 +171,19 @@ void mmBDDialog::dataToControls()
     // Set the payment date
     bill_date.ParseDate(m_bill_data.NEXTOCCURRENCEDATE);
     m_payment_date->SetValue(bill_date);
-    if (m_enter_occur)
-    {
-        m_payment_date->SetValue(wxDateTime::Now());
-    }
     m_calendar_ctrl->SetDate(bill_date);
+    wxTimeSpan pay_date = bill_date.Subtract(wxDateTime::Now());
+    int pay_days = pay_date.GetDays();
+
     // Set the due Date
     bill_date.ParseDate(m_bill_data.TRANSDATE);
     m_due_date->SetValue(bill_date);
-
+    wxTimeSpan due_date = bill_date.Subtract(wxDateTime::Now());
+    int due_days = due_date.GetDays();
+    if (m_enter_occur && (pay_days < 14) && (due_days > -3))
+    {
+        m_payment_date->SetValue(wxDateTime::Now());
+    }
     // Have used repeatSel to multiplex auto repeat fields.
     if (m_bill_data.REPEATS >= BD_REPEATS_MULTIPLEX_BASE)
     {
@@ -284,18 +288,26 @@ void mmBDDialog::SetDialogParameters(const Model_Checking::Full_Data& transactio
 
     if (transaction.has_split())
     {
-        //TODO: Implement this feature
-        wxMessageBox(_("Note: Split transactions not set"), _("Reoccuring Transaction Creation"));
+        Model_Splittransaction::Data_Set bill_splits;
+        for (auto &split_trans : transaction.m_splits)
+        {
+            Split s;
+            s.CATEGID = split_trans.CATEGID;
+            s.SPLITTRANSAMOUNT = split_trans.SPLITTRANSAMOUNT;
+            s.SUBCATEGID = split_trans.SUBCATEGID;
+            m_bill_data.local_splits.push_back(s);
+        }
+        cSplit_->SetValue(true);
     }
     else
     {
         m_bill_data.CATEGID = transaction.CATEGID;
         m_bill_data.SUBCATEGID = transaction.SUBCATEGID;
-        setCategoryLabel();
     }
 
     m_bill_data.TRANSACTIONNUMBER = transaction.TRANSACTIONNUMBER;
     m_bill_data.NOTES = transaction.NOTES;
+    setCategoryLabel();
 }
 
 void mmBDDialog::CreateControls()
@@ -953,20 +965,12 @@ void mmBDDialog::OnOk(wxCommandEvent& /*event*/)
         }
     }
 
-    if (cSplit_->IsChecked())
+    if ((cSplit_->IsChecked() && m_bill_data.local_splits.empty())
+        || (!cSplit_->IsChecked() && Model_Category::full_name(m_bill_data.CATEGID, m_bill_data.SUBCATEGID).empty()))
     {
-        if (m_bill_data.local_splits.empty())
-        {
-            mmErrorDialogs::InvalidCategory((wxWindow*)bCategory_);
-            return;
-        }
+        return mmErrorDialogs::InvalidCategory((wxWindow*)bCategory_, false);
     }
-    else
-    {
-        if (Model_Category::full_name(m_bill_data.CATEGID, m_bill_data.SUBCATEGID).empty())
-            return mmErrorDialogs::InvalidCategory(static_cast<wxWindow*>(bCategory_));
 
-    }
 
     if (!m_advanced || m_bill_data.TOTRANSAMOUNT < 0)
     {

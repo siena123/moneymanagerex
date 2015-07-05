@@ -157,17 +157,6 @@ row_t Model_Setting::to_row_t()
         row(r.SETTINGNAME.ToStdWstring()) = r.SETTINGVALUE;
     return row;
 }
-//-------------------------------------------------------------------
-
-bool Model_Setting::DisplayInternetNews()
-{
-    return GetBoolSetting(INIDB_DISPLAY_INTERNET_NEWS, true);
-}
-
-void Model_Setting::SetDisplayInternetNews(bool display)
-{
-    Set(INIDB_DISPLAY_INTERNET_NEWS, display);
-}
 
 //-------------------------------------------------------------------
 wxString Model_Setting::ViewAccounts()
@@ -192,15 +181,16 @@ void Model_Setting::SetViewTransactions(const wxString& value)
 }
 
 //-------------------------------------------------------------------
-int Model_Setting::HtmlFontSize()
+
+int Model_Setting::GetHtmlScaleFactor()
 {
-    return GetIntSetting("HTMLFONTSIZE", 3);
+    return GetIntSetting("HTMLSCALE", 100);
 }
 
-void Model_Setting::SetHtmlFontSize(const int& size)
+void Model_Setting::SetHtmlScaleFactor(const int scale)
 {
-    Set("HTMLFONTSIZE", size);
-    mmIniOptions::instance().html_font_size_ = size;
+    Set("HTMLSCALE", scale);
+    mmIniOptions::instance().html_font_size_ = scale;
 }
 
 //-------------------------------------------------------------------

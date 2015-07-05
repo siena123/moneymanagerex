@@ -31,11 +31,12 @@ const char *usage_template = R"(
     <meta charset="UTF-8" />
     <meta http - equiv = "Content-Type" content = "text/html" />
     <title><TMPL_VAR REPORTNAME></title>
-    <script src = "Chart.js"></script>
+    <script src = "ChartNew.js"></script>
     <script src = "sorttable.js"></script>
     <link href = "master.css" rel = "stylesheet" />
     <style>
         canvas {max-height: 400px; min-height: 100px;}
+        body {font-size: <TMPL_VAR HTMLSCALE>%;};
     </style>
 </head>
 <body>
@@ -203,6 +204,7 @@ wxString mmReportMyUsage::getHTMLText()
     report(L"REPORTNAME") = this->local_title();
     report(L"CONTENTS") = contents;
     report(L"GRAND") = wxString::Format("%ld", (long)all_usage.size());
+    report(L"HTMLSCALE") = wxString::Format("%d", mmIniOptions::instance().html_font_size_);
 
     wxString out = wxEmptyString;
     try 

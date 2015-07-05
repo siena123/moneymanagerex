@@ -23,7 +23,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 class wxString;
 
 extern const wxSizerFlags g_flags;
+extern const wxSizerFlags g_flagsBorder1;
+extern const wxSizerFlags g_flagsCenter;
 extern const wxSizerFlags g_flagsExpand;
+extern const wxSizerFlags g_flagsExpandBorder1;
 
 namespace mmex
 {
@@ -39,7 +42,6 @@ extern const wxString DEFDELIMTER;
 */
 const wxString getProgramName();
 const wxString getTitleProgramVersion();
-const wxString getProgramVersion();
 const wxString getProgramCopyright();
 const wxString getProgramDescription();
 
@@ -51,6 +53,7 @@ namespace version
     extern const int Alpha;
     extern const int Beta;
     extern const int RC;
+    extern const wxString string;
     extern const wxString generateProgramVersion
         (int Major, int Minor, int Patch, int Alpha, int Beta, int RC);
 }
@@ -90,7 +93,8 @@ extern const wxString VIEW_TRANS_LAST_12MONTHS_STR;
 extern const wxString VIEW_TRANS_CURRENT_YEAR_STR;   
 
 extern const wxString VIEW_ACCOUNTS_ALL_STR;       
-extern const wxString VIEW_ACCOUNTS_OPEN_STR;      
+extern const wxString VIEW_ACCOUNTS_OPEN_STR;
+extern const wxString VIEW_ACCOUNTS_CLOSED_STR;
 extern const wxString VIEW_ACCOUNTS_FAVORITES_STR; 
 
 extern const wxString LANGUAGE_PARAMETER;
@@ -109,7 +113,7 @@ extern const wxString ATTACHMENTS_FOLDER_DATABASE;
 extern const wxString ATTACHMENTS_FOLDER_USERPROFILE;
 extern const wxString ATTACHMENTS_FOLDER_APPDATA;
 
-extern const wxString INIDB_DISPLAY_INTERNET_NEWS;
+extern const wxString INIDB_NEWS_LAST_READ_DATE;
 
 enum id
 {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. common/variables.sh
+. variables.sh
 
 ARCHITECTURE="amd64"
 
@@ -16,13 +16,11 @@ mkdir "$BUILD_DIR/SOURCES"
 echo "Name:           mmex
 Version:        $MMEX_VERSION
 Release:        1%{?dist}
-Source:         http://www.codelathe.com/mmex/%{name}-%{version}.tar.gz
+Source:         https://github.com/moneymanagerex/moneymanagerex/archive/v%{version}.tar.gz
 Summary:        $MMEX_SUMMARY
-Group:          Applications/Productivity
 License:        GPLv2+
 Icon:           mmex.xpm
 URL:            $MMEX_HOMEPAGE
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 #Requires:    	$MMEX_RPM_DEPENDS
 
 %description
@@ -30,9 +28,8 @@ $MMEX_DESCRIPTION
 
 
 %prep
-%setup -q
-./bootstrap
-
+%autosetup
+%{_builddir}/%{name}-%{version}/bootstrap.sh
 
 %build
 %configure
@@ -40,24 +37,19 @@ make %{?_smp_mflags}
 
 
 %install
-rm -rf %{buildroot}
-make install DESTDIR=%{buildroot}
+%make_install
+desktop-file-validate %{buildroot}%{_datadir}/applications/mmex.desktop
 
 
-%clean
-rm -rf %{buildroot}
-
-%find_lang %{name}
-
-%files -f %{name}.lang
-%defattr(-,root,root,-)
+%files
 %{_bindir}/*
-%{_datadir}/*
-/usr/share/icons/hicolor/scalable/apps
-/usr/share/applications
-%docdir /usr/share/doc/mmex
-/usr/share/doc/mmex/*
-%{_mandir}/man1/*
+%{_datadir}/mmex/*
+%{_datadir}/icons/hicolor/scalable/apps/mmex.svg
+%{_datadir}/applications/mmex.desktop
+%{_defaultdocdir}/mmex/*
+%{_mandir}/man1/mmex.1.gz
+
+
 
 
 %changelog" > "$BUILD_DIR/SPECS/mmex.spec"
@@ -68,22 +60,13 @@ cd ../..
 cp resources/mmex.xpm "$BUILD_DIR/SOURCES"
 
 #Copy source
-cd ..
-cp -r moneymanagerex "$BUILD_DIR/SOURCES/$PACKAGE_NAME"
-#No need to copy the git stuff over
-rm -rf "$BUILD_DIR/SOURCES/$PACKAGE_NAME/.git"
+rm -rf "$BUILD_DIR/SOURCES/$PACKAGES_NAME"
+rsync -av --progress * "$BUILD_DIR/SOURCES/$PACKAGE_NAME" --exclude .git --exclude compile
 
 cd "$BUILD_DIR/SOURCES"
 
-#Copy the manpage in to place and modify
-cp "$PACKAGE_NAME/setup/linux/common/mmex.1" "$PACKAGE_NAME/doc/mmex.1"
-sed -i "s/MMEX_VERSION/$MMEX_VERSION/g" "$PACKAGE_NAME/doc/mmex.1"
-sed -i "s/MMEX_RELEASE_DATE/$MMEX_RELEASE_DATE/g" "$PACKAGE_NAME/doc/mmex.1"
-gzip -9 -f "$PACKAGE_NAME/doc/mmex.1"
-chmod 644 "$PACKAGE_NAME/doc/mmex.1.gz"
-
 #Compress the source
-tar -zcvf "$PACKAGE_NAME.tar.gz" $PACKAGE_NAME
+tar -zcvf "v$MMEX_VERSION.tar.gz" $PACKAGE_NAME
 
 #Build the package
 cd "$BUILD_DIR/SPECS"

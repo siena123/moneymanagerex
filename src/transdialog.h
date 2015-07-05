@@ -44,9 +44,10 @@ public:
         , int account_id
         , int transaction_id
         , bool duplicate = false
+        , int type = Model_Checking::WITHDRAWAL
     );
 
-    bool Create( wxWindow* parent
+    bool Create(wxWindow* parent
         , wxWindowID id
         , const wxString& caption
         , const wxPoint& pos
@@ -127,7 +128,6 @@ private:
     bool skip_notes_init_;
     bool skip_category_init_;
     bool skip_tooltips_init_;
-    bool category_changed_;
 
     enum
     {

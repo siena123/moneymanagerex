@@ -93,6 +93,7 @@ public:
         wxString ACCOUNTNAME;
         wxString PAYEENAME;
         wxString CATEGNAME;
+        Model_Budgetsplittransaction::Data_Set m_bill_splits;
     };
     typedef std::vector<Full_Data> Full_Data_Set;
 

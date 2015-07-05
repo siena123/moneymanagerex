@@ -76,10 +76,11 @@ public:
     static void MessageInvalid(wxWindow *parent, const wxString &message);
     static void MessageError(wxWindow *parent, const wxString &message, const wxString &messageheader);
     static void MessageWarning(wxWindow *parent, const wxString &message, const wxString &messageheader);
-    static void InvalidCategory(wxWindow *button);
+    static void InvalidCategory(wxWindow *button, bool simple = true);
     static void InvalidAccount(wxWindow *object, bool transfer = false);
     static void InvalidFile(wxWindow *object, bool open = false);
     static void InvalidPayee(wxWindow *object);
-    static void InvalidName(wxTextCtrl *textBox);
+    static void InvalidName(wxTextCtrl *textBox, bool alreadyexist = false);
+    static void InvalidSymbol(wxTextCtrl *textBox, bool alreadyexist = false);
 };
 #endif // MM_EX_MMSIMPLEDIALOGS_H_
