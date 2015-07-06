@@ -42,6 +42,8 @@ Copyright (C) 2014 Nikolay
 #include "cajun/json/reader.h"
 #include "cajun/json/writer.h"
 
+#include "webview_chromium.h"
+
 static const wxString TOP_CATEGS = R"(
 <table class = 'table'>
   <tr class='active'>
@@ -527,7 +529,7 @@ void mmHomePagePanel::CreateControls()
     wxBoxSizer* itemBoxSizer2 = new wxBoxSizer(wxVERTICAL);
     this->SetSizer(itemBoxSizer2);
 
-    browser_ = wxWebView::New(this, mmID_BROWSER);
+    browser_ = wxWebView::New(this, mmID_BROWSER, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerHomePage(this, "assets")));
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerHomePage(this, "billsdeposits")));

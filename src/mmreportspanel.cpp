@@ -29,6 +29,7 @@
 #include "model/Model_Account.h"
 #include "model/Model_Checking.h"
 #include "model/Model_Usage.h"
+#include "webview_chromium.h"
 
 class WebViewHandlerReportsPage : public wxWebViewHandler
 {
@@ -216,7 +217,7 @@ void mmReportsPanel::CreateControls()
         itemBoxSizerHeader->Add(m_end_date, 0, wxALL, 1);
     }
 
-    browser_ = wxWebView::New(this, mmID_BROWSER);
+    browser_ = wxWebView::New(this, mmID_BROWSER, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerReportsPage(this, "trxid")));
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerReportsPage(this, "trx")));

@@ -24,6 +24,7 @@
 #include "platfdep.h"
 #include "util.h"
 #include "webserver.h"
+#include "webview_chromium.h"
 
 #include "model/Model_Setting.h"
 #include "model/Model_Usage.h"
@@ -129,6 +130,9 @@ bool OnInitImpl(mmGUIApp* app)
     Model_Report::prepareTempFolder();
     Model_Report::WindowsUpdateRegistry();
 
+    /* Initialize Chromium */
+    wxWebView::RegisterFactory(wxWebViewBackendChromium, wxSharedPtr<wxWebViewFactory>(new wxWebViewFactoryChromium));
+
     /* Initialize Image Handlers */
     wxInitAllImageHandlers();
 
@@ -192,7 +196,9 @@ bool mmGUIApp::OnInit()
 
     try
     {
-        ok = wxApp::OnInit() && OnInitImpl(this);
+        int code = 0;
+        if (wxWebViewChromium::StartUp(code))
+            ok = wxApp::OnInit() && OnInitImpl(this);
     }
     catch (const wxSQLite3Exception &e)
     {
@@ -219,6 +225,7 @@ int mmGUIApp::OnExit()
     if (m_setting_db) delete m_setting_db;
 
     Mongoose_Service::instance().stop();
+    wxWebViewChromium::Shutdown();
 
-    return 0;
+    return wxApp::OnExit();
 }

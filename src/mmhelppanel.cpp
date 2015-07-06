@@ -22,6 +22,7 @@
 #include "constants.h"
 #include "mmex.h"
 #include "mmframe.h"
+#include "webview_chromium.h"
 
 BEGIN_EVENT_TABLE(mmHelpPanel, wxPanel)
     EVT_BUTTON(wxID_BACKWARD, mmHelpPanel::OnHelpPageBack)
@@ -72,7 +73,7 @@ void mmHelpPanel::CreateControls()
     itemBoxSizerHeader->Add(buttonFordward, 0, wxLEFT | wxRIGHT, 5);
     itemBoxSizerHeader->Add(itemStaticText9, 0, wxLEFT | wxTOP, 5);
 
-    browser_ = wxWebView::New(this, wxID_ANY);
+    browser_ = wxWebView::New(this, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
     itemBoxSizer2->Add(browser_, 1, wxGROW | wxALL, 1);
     
     /**************************************************************************

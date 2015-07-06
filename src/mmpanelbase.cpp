@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 #include "mmpanelbase.h"
 #include "model/Model_Setting.h"
+#include "webview_chromium.h"
 
 wxBEGIN_EVENT_TABLE(mmListCtrl, wxListCtrl)
 EVT_LIST_COL_END_DRAG(wxID_ANY, mmListCtrl::OnItemResize)
@@ -233,7 +234,7 @@ wxString mmPanelBase::BuildPage() const
 void mmPanelBase::PrintPage()
 {
     //this->Freeze();
-    wxWebView * htmlWindow = wxWebView::New(this, wxID_ANY);
+    wxWebView * htmlWindow = wxWebView::New(this, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
     htmlWindow->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
     htmlWindow->SetPage(BuildPage(), "");
     htmlWindow->Print();

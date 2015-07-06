@@ -34,6 +34,8 @@
 #include <wx/sstream.h>
 #include <wx/zipstrm.h>
 
+#include "webview_chromium.h"
+
 static const wxString SAMPLE_ASSETS_LUA = 
 R"(local total_balance = 0
 function handle_record(record)
@@ -392,7 +394,7 @@ void mmGeneralReportManager::createOutputTab(wxNotebook* editors_notebook, int t
     editors_notebook->InsertPage(ID_TAB_OUT, out_tab, _("Output"));
     wxBoxSizer *out_sizer = new wxBoxSizer(wxVERTICAL);
     out_tab->SetSizer(out_sizer);
-    m_outputHTML = wxWebView::New(out_tab, ID_WEB);
+    m_outputHTML = wxWebView::New(out_tab, ID_WEB, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
     out_sizer->Add(m_outputHTML, g_flagsExpand);
     out_tab->SetSizerAndFit(out_sizer);
 }
