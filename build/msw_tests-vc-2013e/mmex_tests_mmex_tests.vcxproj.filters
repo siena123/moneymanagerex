@@ -402,6 +402,9 @@
     <ClCompile Include="..\..\src\mmSimpleDialogs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\3rd\wxWebViewChromium\webview_chromium3.cpp">
+      <Filter>Source Files\3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\aboutdialog.h">
@@ -838,6 +841,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\wizard_update.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\wxWebViewChromium\webview_chromium.h">
+      <Filter>Header Files\3rd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\3rd\wxWebViewChromium\webview_chromium3.h">
+      <Filter>Header Files\3rd</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

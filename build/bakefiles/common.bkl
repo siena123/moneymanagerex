@@ -177,12 +177,15 @@
         <include>$(SRCDIR)/3rd/cgitemplate</include>
         <include>$(SRCDIR)/3rd/csv-parser/include</include>
         <include>$(SRCDIR)/src</include>
+        <include>$(DOLLAR)($(ENV_VAR)MMEX_CEF)</include>
 
         <!-- disable precompiled headers for wxWidgets -->
         <define>NOPCH</define>
 
         <library>wxsqlite</library>
         <library>lua</library>
+        <sys-lib>libcef_dll_wrapper</sys-lib>
+        <sys-lib>libcef</sys-lib>
 
         <!-- relative to trunk/mmex -->
 
@@ -197,6 +200,8 @@
         <headers>$(fileList( [ '3rd/cgitemplate/html_template.h', '3rd/mongoose/*.h' ] ))</headers>
         <sources>$(fileList( [ '3rd/cgitemplate/html_template.cpp', '3rd/mongoose/*.c' ] ))</sources>
         <sources>$(fileList( [ '3rd/csv-parser/*.cpp' ] ))</sources>
+        <headers>$(fileList( [ '3rd/wxWebViewChromium/webview_chromium.h', '3rd/wxWebViewChromium/webview_chromium3.h' ] ))</headers>
+        <sources>$(fileList( [ '3rd/wxWebViewChromium/webview_chromium3.cpp' ] ))</sources>
 
 
         <!-- Microsoft compilers only, enable PDB for Release build -->
@@ -218,6 +223,9 @@
             <ldflags>$(LINK_FLAGS)</ldflags>
 
         </if>
+
+        <lib-path>$(DOLLAR)($(ENV_VAR)MMEX_CEF)/libcef_dll/Release</lib-path>
+        <lib-path>$(DOLLAR)($(ENV_VAR)MMEX_CEF)/Release</lib-path>
 
         <!-- Embed a manifest inside executable for VC++.
              By default, Visual Studio tries to embed the manifest when it builds a project from source files.

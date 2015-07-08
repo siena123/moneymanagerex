@@ -100,12 +100,14 @@ MMEX_CFLAGS = -I$(srcdir)/lib/wxsqlite3/sqlite3/secure/src \
 	-I$(srcdir)/lib/wxsqlite3/include -I$(srcdir)/lib/lua/src -I$(srcdir)/lib \
 	-I$(srcdir)/3rd -I$(srcdir)/3rd/LuaGlue/include \
 	-I$(srcdir)/3rd/cgitemplate -I$(srcdir)/3rd/csv-parser/include \
-	-I$(srcdir)/src -DNOPCH $(WX_CFLAGS) $(PIC_FLAG) $(CPPFLAGS) $(CFLAGS)
+	-I$(srcdir)/src -I$(MMEX_CEF) -DNOPCH $(WX_CFLAGS) $(PIC_FLAG) $(CPPFLAGS) \
+	$(CFLAGS)
 MMEX_CXXFLAGS = -I$(srcdir)/lib/wxsqlite3/sqlite3/secure/src \
 	-I$(srcdir)/lib/wxsqlite3/include -I$(srcdir)/lib/lua/src -I$(srcdir)/lib \
 	-I$(srcdir)/3rd -I$(srcdir)/3rd/LuaGlue/include \
 	-I$(srcdir)/3rd/cgitemplate -I$(srcdir)/3rd/csv-parser/include \
-	-I$(srcdir)/src -DNOPCH $(WX_CXXFLAGS) $(PIC_FLAG) $(CPPFLAGS) $(CXXFLAGS)
+	-I$(srcdir)/src -I$(MMEX_CEF) -DNOPCH $(WX_CXXFLAGS) $(PIC_FLAG) $(CPPFLAGS) \
+	$(CXXFLAGS)
 MMEX_OBJECTS =  \
 	mmex_aboutdialog.o \
 	mmex_accountdialog.o \
@@ -207,6 +209,7 @@ MMEX_OBJECTS =  \
 	mmex_html_template.o \
 	mmex_mongoose.o \
 	mmex_csv_parser.o \
+	mmex_webview_chromium3.o \
 	$(__mmex___win32rc)
 
 ### Conditionally set variables: ###
@@ -324,7 +327,7 @@ $(LIBPREFIX)lua$(LIBEXT): $(LUA_OBJECTS)
 	$(RANLIB) $@
 
 mmex$(EXEEXT): $(MMEX_OBJECTS) $(LIBPREFIX)wxsqlite$(LIBEXT) $(LIBPREFIX)lua$(LIBEXT) $(__mmex___win32rc)
-	$(CXX) -o $@ $(MMEX_OBJECTS) -L. -L.   $(LDFLAGS_GUI) $(LDFLAGS)  -lwxsqlite -llua $(WX_LIBS) -ldl
+	$(CXX) -o $@ $(MMEX_OBJECTS) -L. -L.   -L$(MMEX_CEF)/libcef_dll/Release -L$(MMEX_CEF)/Release $(LDFLAGS_GUI) $(LDFLAGS)  -lwxsqlite -llua -llibcef_dll_wrapper -llibcef $(WX_LIBS) -ldl
 	
 	$(__mmex___mac_setfilecmd)
 	$(__mmex___os2_emxbindcmd)
@@ -753,8 +756,11 @@ mmex_mongoose.o: $(srcdir)/3rd/mongoose/mongoose.c
 mmex_csv_parser.o: $(srcdir)/3rd/csv-parser/csv_parser.cpp
 	$(CXXC) -c -o $@ $(MMEX_CXXFLAGS) $(srcdir)/3rd/csv-parser/csv_parser.cpp
 
+mmex_webview_chromium3.o: $(srcdir)/3rd/wxWebViewChromium/webview_chromium3.cpp
+	$(CXXC) -c -o $@ $(MMEX_CXXFLAGS) $(srcdir)/3rd/wxWebViewChromium/webview_chromium3.cpp
+
 mmex_resources_mmex_rc.o: $(srcdir)/resources/mmex.rc
-	$(WX_RESCOMP) -i$< -o$@  --include-dir $(srcdir)/lib/wxsqlite3/sqlite3/secure/src --include-dir $(srcdir)/lib/wxsqlite3/include --include-dir $(srcdir)/lib/lua/src --include-dir $(srcdir)/lib --include-dir $(srcdir)/3rd --include-dir $(srcdir)/3rd/LuaGlue/include --include-dir $(srcdir)/3rd/cgitemplate --include-dir $(srcdir)/3rd/csv-parser/include --include-dir $(srcdir)/src --define NOPCH
+	$(WX_RESCOMP) -i$< -o$@  --include-dir $(srcdir)/lib/wxsqlite3/sqlite3/secure/src --include-dir $(srcdir)/lib/wxsqlite3/include --include-dir $(srcdir)/lib/lua/src --include-dir $(srcdir)/lib --include-dir $(srcdir)/3rd --include-dir $(srcdir)/3rd/LuaGlue/include --include-dir $(srcdir)/3rd/cgitemplate --include-dir $(srcdir)/3rd/csv-parser/include --include-dir $(srcdir)/src --include-dir $(MMEX_CEF) --define NOPCH
 
 
 # Include dependency info, if present:

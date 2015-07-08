@@ -105,8 +105,8 @@ MMEX_CFLAGS = /MD$(__DEBUGINFO_1) /DWIN32 $(____WX_SHARED) \
 	$(__OPTIMIZEFLAG) $(__DEBUG_DEFINE_p) /D_CRT_SECURE_NO_WARNINGS \
 	/I..\..\lib\wxsqlite3\sqlite3\secure\src /I..\..\lib\wxsqlite3\include \
 	/I..\..\lib\lua\src /I..\..\lib /I..\..\3rd /I..\..\3rd\LuaGlue\include \
-	/I..\..\3rd\cgitemplate /I..\..\3rd\csv-parser\include /I..\..\src /DNOPCH \
-	/D_WINDOWS $(CPPFLAGS) $(CFLAGS)
+	/I..\..\3rd\cgitemplate /I..\..\3rd\csv-parser\include /I..\..\src \
+	/I$(MMEX_CEF) /DNOPCH /D_WINDOWS $(CPPFLAGS) $(CFLAGS)
 MMEX_CXXFLAGS = /MD$(__DEBUGINFO_1) /DWIN32 $(____WX_SHARED) \
 	$(__WXUNICODE_DEFINE_p) $(__WXDEBUG_DEFINE_p) /D__WXMSW__ \
 	/I$(WX_DIR)$(__WXLIBPATH_FILENAMES_1)\msw$(WXLIBPOSTFIX) \
@@ -114,8 +114,9 @@ MMEX_CXXFLAGS = /MD$(__DEBUGINFO_1) /DWIN32 $(____WX_SHARED) \
 	$(__OPTIMIZEFLAG) $(__DEBUG_DEFINE_p) /D_CRT_SECURE_NO_WARNINGS \
 	/I..\..\lib\wxsqlite3\sqlite3\secure\src /I..\..\lib\wxsqlite3\include \
 	/I..\..\lib\lua\src /I..\..\lib /I..\..\3rd /I..\..\3rd\LuaGlue\include \
-	/I..\..\3rd\cgitemplate /I..\..\3rd\csv-parser\include /I..\..\src /DNOPCH \
-	/D_WINDOWS /EHsc /GR $(__mmex_CL_FLAGS) $(CPPFLAGS) $(CXXFLAGS)
+	/I..\..\3rd\cgitemplate /I..\..\3rd\csv-parser\include /I..\..\src \
+	/I$(MMEX_CEF) /DNOPCH /D_WINDOWS /EHsc /GR $(__mmex_CL_FLAGS) $(CPPFLAGS) \
+	$(CXXFLAGS)
 MMEX_OBJECTS =  \
 	mmex_aboutdialog.obj \
 	mmex_accountdialog.obj \
@@ -216,7 +217,8 @@ MMEX_OBJECTS =  \
 	mmex_Model_Usage.obj \
 	mmex_html_template.obj \
 	mmex_mongoose.obj \
-	mmex_csv_parser.obj
+	mmex_csv_parser.obj \
+	mmex_webview_chromium3.obj
 MMEX_RESOURCES =  \
 	mmex_resources_mmex.res
 
@@ -529,8 +531,8 @@ lua.lib: $(LUA_OBJECTS)
 <<
 
 mmex.exe: $(MMEX_OBJECTS) wxsqlite.lib lua.lib mmex_resources_mmex.res
-	link /NOLOGO /OUT:$@  /LIBPATH:$(WX_DIR)$(__WXLIBPATH_FILENAMES_3) $(WXMACHINE_FLAG) /LIBPATH:$(WX_DIR)\lib\vc$(____mmex_CPU_SUF_FILENAMES)$(____mmex_LIB_SUF_FILENAMES)  $(__DEBUGINFO_39) /pdb:"mmex.pdb" $(__DEBUGINFO_43) /SAFESEH:NO $(__mmex_LINK_FLAGS) /SUBSYSTEM:WINDOWS,5.1 /SUBSYSTEM:WINDOWS $(LDFLAGS) @<<
-	$(MMEX_OBJECTS) $(MMEX_RESOURCES)  wxsqlite.lib lua.lib $(__WXLIB_CORE_NAME_p) $(__WXLIB_QA_NAME_p) $(__WXLIB_NET_NAME_p) $(__WXLIB_HTML_NAME_p) $(__WXLIB_XML_NAME_p) $(__WXLIB_AUI_NAME_p) $(__WXLIB_ADV_NAME_p) $(__WXLIB_STC_NAME_p) wxscintilla$(WX3RDPARTYLIBPOSTFIX).lib $(__WXLIB_WEBVIEW_NAME_p) $(__WXLIB_BASE_NAME_p) wxtiff$(WX3RDPARTYLIBPOSTFIX).lib wxjpeg$(WX3RDPARTYLIBPOSTFIX).lib wxpng$(WX3RDPARTYLIBPOSTFIX).lib wxzlib$(WX3RDPARTYLIBPOSTFIX).lib wxregex$(WXLIBPOSTFIX).lib wxexpat$(WX3RDPARTYLIBPOSTFIX).lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib
+	link /NOLOGO /OUT:$@  /LIBPATH:$(WX_DIR)$(__WXLIBPATH_FILENAMES_3) $(WXMACHINE_FLAG) /LIBPATH:$(WX_DIR)\lib\vc$(____mmex_CPU_SUF_FILENAMES)$(____mmex_LIB_SUF_FILENAMES)  $(__DEBUGINFO_39) /pdb:"mmex.pdb" $(__DEBUGINFO_43) /SAFESEH:NO $(__mmex_LINK_FLAGS) /LIBPATH:$(MMEX_CEF)\libcef_dll\Release /LIBPATH:$(MMEX_CEF)\Release /SUBSYSTEM:WINDOWS,5.1 /SUBSYSTEM:WINDOWS $(LDFLAGS) @<<
+	$(MMEX_OBJECTS) $(MMEX_RESOURCES)  wxsqlite.lib lua.lib libcef_dll_wrapper.lib libcef.lib $(__WXLIB_CORE_NAME_p) $(__WXLIB_QA_NAME_p) $(__WXLIB_NET_NAME_p) $(__WXLIB_HTML_NAME_p) $(__WXLIB_XML_NAME_p) $(__WXLIB_AUI_NAME_p) $(__WXLIB_ADV_NAME_p) $(__WXLIB_STC_NAME_p) wxscintilla$(WX3RDPARTYLIBPOSTFIX).lib $(__WXLIB_WEBVIEW_NAME_p) $(__WXLIB_BASE_NAME_p) wxtiff$(WX3RDPARTYLIBPOSTFIX).lib wxjpeg$(WX3RDPARTYLIBPOSTFIX).lib wxpng$(WX3RDPARTYLIBPOSTFIX).lib wxzlib$(WX3RDPARTYLIBPOSTFIX).lib wxregex$(WXLIBPOSTFIX).lib wxexpat$(WX3RDPARTYLIBPOSTFIX).lib kernel32.lib user32.lib gdi32.lib comdlg32.lib winspool.lib winmm.lib shell32.lib comctl32.lib ole32.lib oleaut32.lib uuid.lib rpcrt4.lib advapi32.lib wsock32.lib oleacc.lib
 <<
 	mt.exe -manifest ".\mmex.exe.manifest" -outputresource:".\mmex.exe";1
 
@@ -959,6 +961,9 @@ mmex_mongoose.obj: ..\..\3rd\mongoose\mongoose.c
 mmex_csv_parser.obj: ..\..\3rd\csv-parser\csv_parser.cpp
 	$(CXX) /c /nologo /TP /Fo$@ $(MMEX_CXXFLAGS) ..\..\3rd\csv-parser\csv_parser.cpp
 
+mmex_webview_chromium3.obj: ..\..\3rd\wxWebViewChromium\webview_chromium3.cpp
+	$(CXX) /c /nologo /TP /Fo$@ $(MMEX_CXXFLAGS) ..\..\3rd\wxWebViewChromium\webview_chromium3.cpp
+
 mmex_resources_mmex.res: ..\..\resources\mmex.rc
-	rc /fo$@  /d WIN32 $(____WX_SHARED_31_p_1) $(__WXUNICODE_DEFINE_p_2) $(__WXDEBUG_DEFINE_p_2) /d __WXMSW__ /i $(WX_DIR)$(__WXLIBPATH_FILENAMES_2)\msw$(WXLIBPOSTFIX) /i $(WX_DIR)\include $(____DEBUGINFO_40_p_1) $(__DEBUG_DEFINE_p_3) /i ..\..\lib\wxsqlite3\sqlite3\secure\src /i ..\..\lib\wxsqlite3\include /i ..\..\lib\lua\src /i ..\..\lib /i ..\..\3rd /i ..\..\3rd\LuaGlue\include /i ..\..\3rd\cgitemplate /i ..\..\3rd\csv-parser\include /i ..\..\src /d NOPCH /d _WINDOWS ..\..\resources\mmex.rc
+	rc /fo$@  /d WIN32 $(____WX_SHARED_31_p_1) $(__WXUNICODE_DEFINE_p_2) $(__WXDEBUG_DEFINE_p_2) /d __WXMSW__ /i $(WX_DIR)$(__WXLIBPATH_FILENAMES_2)\msw$(WXLIBPOSTFIX) /i $(WX_DIR)\include $(____DEBUGINFO_40_p_1) $(__DEBUG_DEFINE_p_3) /i ..\..\lib\wxsqlite3\sqlite3\secure\src /i ..\..\lib\wxsqlite3\include /i ..\..\lib\lua\src /i ..\..\lib /i ..\..\3rd /i ..\..\3rd\LuaGlue\include /i ..\..\3rd\cgitemplate /i ..\..\3rd\csv-parser\include /i ..\..\src /i $(MMEX_CEF) /d NOPCH /d _WINDOWS ..\..\resources\mmex.rc
 
