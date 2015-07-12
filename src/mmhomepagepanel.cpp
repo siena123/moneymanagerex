@@ -467,8 +467,9 @@ private:
     mmHomePagePanel *m_reportPanel;
 };
 
-wxBEGIN_EVENT_TABLE(mmHomePagePanel, wxPanel)
+wxBEGIN_EVENT_TABLE(mmHomePagePanel, mmPanelBase)
 EVT_WEBVIEW_NAVIGATING(wxID_ANY, mmHomePagePanel::OnLinkClicked)
+EVT_WEBVIEW_LOADED(mmID_BROWSER, mmHomePagePanel::OnWebViewLoaded)
 wxEND_EVENT_TABLE()
 
 mmHomePagePanel::mmHomePagePanel(wxWindow *parent, mmGUIFrame *frame
@@ -536,6 +537,11 @@ void mmHomePagePanel::CreateControls()
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerHomePage(this, "acct")));
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerHomePage(this, "stock")));
     itemBoxSizer2->Add(browser_, 1, wxGROW | wxALL, 0);
+}
+
+void mmHomePagePanel::OnWebViewLoaded(wxWebViewEvent& event)
+{
+    browser_->SendSizeEventToParent();
 }
 
 void mmHomePagePanel::PrintPage()

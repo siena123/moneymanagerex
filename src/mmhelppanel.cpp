@@ -24,9 +24,10 @@
 #include "mmframe.h"
 #include "webview_chromium.h"
 
-BEGIN_EVENT_TABLE(mmHelpPanel, wxPanel)
+BEGIN_EVENT_TABLE(mmHelpPanel, mmPanelBase)
     EVT_BUTTON(wxID_BACKWARD, mmHelpPanel::OnHelpPageBack)
     EVT_BUTTON(wxID_FORWARD, mmHelpPanel::OnHelpPageForward)
+    EVT_WEBVIEW_LOADED(wxID_ANY, mmHelpPanel::OnWebViewLoaded)
 END_EVENT_TABLE()
 
 mmHelpPanel::mmHelpPanel(wxWindow *parent, mmGUIFrame* frame, wxWindowID winid
@@ -97,6 +98,11 @@ void mmHelpPanel::CreateControls()
         url = "file://" + helpIndexFile.GetPathWithSep() + helpIndexFile.GetFullName();
     browser_->LoadURL(url);
     wxLogDebug("%s", url);
+}
+
+void mmHelpPanel::OnWebViewLoaded(wxWebViewEvent& event)
+{
+    browser_->SendSizeEventToParent();
 }
 
 void mmHelpPanel::sortTable()

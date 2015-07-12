@@ -81,6 +81,7 @@ private:
     void OnItemRightClick(wxTreeEvent& event);
     void OnSelChanged(wxTreeEvent& event);
     //void OnLabelChanged(wxTreeEvent& event);
+    void OnWebViewLoaded(wxWebViewEvent& event);
     void viewControls(bool enable);
     void renameReport(int id);
     bool DeleteReport(int id);

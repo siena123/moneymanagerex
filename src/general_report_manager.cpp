@@ -214,7 +214,8 @@ wxBEGIN_EVENT_TABLE(mmGeneralReportManager, wxDialog)
     EVT_TREE_SEL_CHANGED(ID_REPORT_LIST, mmGeneralReportManager::OnSelChanged)
     EVT_TREE_ITEM_MENU(ID_REPORT_LIST, mmGeneralReportManager::OnItemRightClick)
     EVT_MENU(wxID_ANY, mmGeneralReportManager::OnMenuSelected)
-wxEND_EVENT_TABLE()
+    EVT_WEBVIEW_LOADED(ID_WEB, mmGeneralReportManager::OnWebViewLoaded)
+    wxEND_EVENT_TABLE()
 
 sqlListCtrl::sqlListCtrl(mmGeneralReportManager* grm, wxWindow *parent, wxWindowID winid)
     : mmListCtrl(parent, winid)
@@ -397,6 +398,11 @@ void mmGeneralReportManager::createOutputTab(wxNotebook* editors_notebook, int t
     m_outputHTML = wxWebView::New(out_tab, ID_WEB, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
     out_sizer->Add(m_outputHTML, g_flagsExpand);
     out_tab->SetSizerAndFit(out_sizer);
+}
+
+void mmGeneralReportManager::OnWebViewLoaded(wxWebViewEvent& event)
+{
+    m_outputHTML->SendSizeEventToParent();
 }
 
 void mmGeneralReportManager::createEditorTab(wxNotebook* editors_notebook, int type)
@@ -632,7 +638,7 @@ void mmGeneralReportManager::OnUpdateReport(wxCommandEvent& /*event*/)
         report->DESCRIPTION = descriptionText->GetValue();
 
         Model_Report::instance().save(report);
-        m_outputHTML->SetPage(report->DESCRIPTION, "");
+        m_outputHTML->SetPage(report->DESCRIPTION, wxWebViewDefaultURLStr);
     }
 }
 
@@ -752,7 +758,7 @@ void mmGeneralReportManager::OnSelChanged(wxTreeEvent& event)
         if (!description.Contains("<!DOCTYPE html"))
             description.Replace("\n", "<BR>\n");
 
-        m_outputHTML->SetPage(description, "");
+        m_outputHTML->SetPage(description, wxWebViewDefaultURLStr);
 
         if (m_sqlListBox) m_sqlListBox->DeleteAllItems();
         if (m_sqlListBox) m_sqlListBox->DeleteAllColumns();

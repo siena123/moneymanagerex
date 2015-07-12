@@ -92,8 +92,9 @@ enum
     ID_CHOICE_DATE_RANGE = wxID_HIGHEST + 1,
 };
 
-wxBEGIN_EVENT_TABLE(mmReportsPanel, wxPanel)
+wxBEGIN_EVENT_TABLE(mmReportsPanel, mmPanelBase)
     EVT_CHOICE(ID_CHOICE_DATE_RANGE, mmReportsPanel::OnDateRangeChanged)
+    EVT_WEBVIEW_LOADED(mmID_BROWSER, mmReportsPanel::OnWebViewLoaded)
 wxEND_EVENT_TABLE()
 
 mmReportsPanel::mmReportsPanel(
@@ -223,6 +224,11 @@ void mmReportsPanel::CreateControls()
     browser_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new WebViewHandlerReportsPage(this, "trx")));
 
     itemBoxSizer2->Add(browser_, 1, wxGROW|wxALL, 1);
+}
+
+void mmReportsPanel::OnWebViewLoaded(wxWebViewEvent& event)
+{
+    browser_->SendSizeEventToParent();
 }
 
 void mmReportsPanel::PrintPage()

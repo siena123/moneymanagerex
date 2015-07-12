@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "mmpanelbase.h"
 #include "model/Model_Setting.h"
 #include "webview_chromium.h"
+#include "constants.h"
+#include "paths.h"
 
 wxBEGIN_EVENT_TABLE(mmListCtrl, wxListCtrl)
 EVT_LIST_COL_END_DRAG(wxID_ANY, mmListCtrl::OnItemResize)
@@ -218,7 +220,12 @@ void mmListCtrl::SetColumnWidthSetting(int column_number, int column_width)
         Model_Setting::instance().Set(wxString::Format(m_col_width, column_number), column_width);
 }
 
+wxBEGIN_EVENT_TABLE(mmPanelBase, wxPanel)
+EVT_WEBVIEW_LOADED(mmID_BROWSER, mmPanelBase::OnWebViewLoaded)
+wxEND_EVENT_TABLE()
+
 mmPanelBase::mmPanelBase()
+    : htmlWindow_(nullptr)
 {
 }
 
@@ -233,13 +240,18 @@ wxString mmPanelBase::BuildPage() const
 
 void mmPanelBase::PrintPage()
 {
-    //this->Freeze();
-    wxWebView * htmlWindow = wxWebView::New(this, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
-    htmlWindow->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
-    htmlWindow->SetPage(BuildPage(), "");
-    htmlWindow->Print();
-    htmlWindow->Destroy();
-    //this->Thaw();
+    htmlWindow_ = wxWebView::New(this, mmID_BROWSER, wxWebViewDefaultURLStr, wxDefaultPosition, wxDefaultSize, wxWebViewBackendChromium);
+    htmlWindow_->Show(false);
+    htmlWindow_->RegisterHandler(wxSharedPtr<wxWebViewHandler>(new wxWebViewFSHandler("memory")));
+
+    Model_Report::outputReportFile(BuildPage());
+    htmlWindow_->LoadURL(getURL(mmex::getReportIndex()));
+    wxLogDebug("Loading file:%s", mmex::getReportIndex());
+}
+
+void mmPanelBase::OnWebViewLoaded(wxWebViewEvent& event)
+{
+    htmlWindow_->Print();
 }
 
 void mmPanelBase::windowsFreezeThaw()

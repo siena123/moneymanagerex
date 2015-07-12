@@ -68,6 +68,7 @@ private:
     void getData();
     void fillData();
     void OnLinkClicked(wxWebViewEvent& event);
+    void OnWebViewLoaded(wxWebViewEvent& event);
     const wxString displayAssets(double& tBalance);
     const wxString displayIncomeVsExpenses();
     const wxString getStatWidget();

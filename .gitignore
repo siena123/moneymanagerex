@@ -49,6 +49,7 @@ makefile
 /build/msw_tests-vc-2013e/test_*.sql
 *.patch
 *.zip
+/build/msw-vc-2013e/debug.log
 
 #autoconf
 aclocal.m4

@@ -66,7 +66,7 @@ static const wxString VIEW_EXPENSE = wxTRANSLATE("View Expense Budget Categories
 static const wxString VIEW_SUMM = wxTRANSLATE("View Budget Category Summary");
 
 /*******************************************************/
-wxBEGIN_EVENT_TABLE(mmBudgetingPanel, wxPanel)
+wxBEGIN_EVENT_TABLE(mmBudgetingPanel, mmPanelBase)
     EVT_LEFT_DOWN(mmBudgetingPanel::OnMouseLeftDown)
     EVT_MENU(wxID_ANY, mmBudgetingPanel::OnViewPopupSelected)
 wxEND_EVENT_TABLE()

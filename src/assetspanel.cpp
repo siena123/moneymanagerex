@@ -317,7 +317,7 @@ void mmAssetsListCtrl::OnEndLabelEdit(wxListEvent& event)
 }
 
 /*******************************************************/
-BEGIN_EVENT_TABLE(mmAssetsPanel, wxPanel)
+BEGIN_EVENT_TABLE(mmAssetsPanel, mmPanelBase)
     EVT_BUTTON(wxID_NEW, mmAssetsPanel::OnNewAsset)
     EVT_BUTTON(wxID_EDIT, mmAssetsPanel::OnEditAsset)
     EVT_BUTTON(wxID_DELETE, mmAssetsPanel::OnDeleteAsset)

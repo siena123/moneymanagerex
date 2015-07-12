@@ -71,6 +71,8 @@ protected:
 
 class mmPanelBase : public wxPanel
 {
+    wxDECLARE_EVENT_TABLE();
+
 public:
     mmPanelBase();
     virtual ~mmPanelBase();
@@ -80,5 +82,9 @@ public:
     void windowsFreezeThaw();
 
     virtual void sortTable() = 0;
+
+private:
+    wxWebView * htmlWindow_;
+    void OnWebViewLoaded(wxWebViewEvent& event);
 };
 //----------------------------------------------------------------------------

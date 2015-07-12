@@ -57,7 +57,7 @@
 #include <algorithm>
 //----------------------------------------------------------------------------
 
-wxBEGIN_EVENT_TABLE(mmCheckingPanel, wxPanel)
+wxBEGIN_EVENT_TABLE(mmCheckingPanel, mmPanelBase)
     EVT_BUTTON(wxID_NEW,         mmCheckingPanel::OnNewTransaction)
     EVT_BUTTON(wxID_EDIT,        mmCheckingPanel::OnEditTransaction)
     EVT_BUTTON(wxID_REMOVE,      mmCheckingPanel::OnDeleteTransaction)

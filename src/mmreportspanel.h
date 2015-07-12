@@ -54,6 +54,8 @@ public:
 
 public:
     void OnDateRangeChanged(wxCommandEvent& event);
+private:
+    void OnWebViewLoaded(wxWebViewEvent& event);
 
 protected:
     std::vector<mmDateRange*> m_all_date_ranges;

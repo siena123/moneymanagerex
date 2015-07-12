@@ -70,7 +70,7 @@ const wxString BILLSDEPOSITS_REPEATS[] =
 };
 
 /*******************************************************/
-wxBEGIN_EVENT_TABLE(mmBillsDepositsPanel, wxPanel)
+wxBEGIN_EVENT_TABLE(mmBillsDepositsPanel, mmPanelBase)
     EVT_BUTTON(wxID_NEW, mmBillsDepositsPanel::OnNewBDSeries)
     EVT_BUTTON(wxID_EDIT, mmBillsDepositsPanel::OnEditBDSeries)
     EVT_BUTTON(wxID_DELETE, mmBillsDepositsPanel::OnDeleteBDSeries)

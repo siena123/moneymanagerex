@@ -388,7 +388,7 @@ void StocksListCtrl::doRefreshItems(int trx_id)
 }
 
 /*******************************************************/
-BEGIN_EVENT_TABLE(mmStocksPanel, wxPanel)
+BEGIN_EVENT_TABLE(mmStocksPanel, mmPanelBase)
     EVT_BUTTON(wxID_NEW,         mmStocksPanel::OnNewStocks)
     EVT_BUTTON(wxID_EDIT,        mmStocksPanel::OnEditStocks)
     EVT_BUTTON(wxID_DELETE,      mmStocksPanel::OnDeleteStocks)
