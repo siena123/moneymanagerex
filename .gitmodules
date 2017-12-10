@@ -28,3 +28,9 @@
 [submodule "database"]
 	path = database
 	url = https://github.com/moneymanagerex/database
+[submodule "3rd\\openssl"]
+	path = 3rd\\openssl
+	url = https://github.com/openssl/openssl.git
+[submodule "3rd\\curl"]
+	path = 3rd\\curl
+	url = https://github.com/curl/curl.git
